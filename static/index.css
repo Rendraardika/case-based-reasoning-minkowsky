@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+:root{
+  --text:#111827; 
+  --muted:#6b7280;
+  --card:#ffffffcc; 
+  --stroke:#e5e7eb;
+  --primary:#2563eb; 
+  --primary-dark:#1e40af;
+  --radius:16px; 
+  --shadow:0 8px 20px rgba(0,0,0,.10);
+}
+
+*{box-sizing:border-box} html,
+body{height:100%}
+
+body{
+  margin:0; 
+  font-family:"Outfit",sans-serif; 
+  color:var(--text);
+  min-height:100dvh; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:center; 
+  align-items:center;
+  padding:24px 16px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.6), rgba(255,255,255,.65)), url("/static/bg.jpg");
+  background-size:cover;
+    background-position:center; 
+    background-attachment:fixed;
+}
+
+h2{ margin:0 0 14px; 
+    font-size:clamp(26px,4vw,36px); 
+    font-weight:700; 
+    text-align:center; 
+    color:#111827 }
+
+form{
+  width:min(560px,92vw);
+  background:var(--card); 
+  border:1px solid var(--stroke);
+  border-radius:var(--radius); 
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(16px); 
+  -webkit-backdrop-filter:blur(16px);
+  padding:16px 20px; display:flex; 
+  flex-direction:column; 
+  gap:8px;
+}
+
+form br{display:none}
+
+label{font-weight:600;
+    color:#1f2937;
+    margin-bottom:2px}
+input[type="text"]{
+  height:40px; 
+  padding:8px 12px; 
+  border-radius:10px; 
+  width:100%;
+  border:1px solid #d1d5db; 
+  background:#fff; 
+  color:#111827;
+  transition:border-color .2s, box-shadow .2s;
+}
+input[type="text"]::placeholder{color:#9ca3af}
+input[type="text"]:focus{outline:none;
+    border-color:#93c5fd;
+    box-shadow:0 0 0 3px rgba(147,197,253,.35)}
+
+button[type="submit"]{
+  margin-top:6px; 
+  height:44px;
+    border:0;
+    border-radius:10px; 
+    width:100%;
+  background:var(--primary); 
+  color:#fff; 
+  font-weight:600; 
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(37,99,235,.25);
+  transition:transform .15s, box-shadow .2s, background .2s;
+}
+button[type="submit"]:hover{
+    background:var(--primary-dark);
+    transform:translateY(-1px);
+    box-shadow:0 8px 18px rgba(30,64,175,.30)}

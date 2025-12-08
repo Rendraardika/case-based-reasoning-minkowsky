@@ -1,0 +1,239 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+:root{
+  --text:#0f172a; 
+  --muted:#64748b;
+  --panel:#ffffffcc; 
+  --stroke:#e5e7eb;
+  --primary:#2563eb; 
+  --ok:#10b981;
+  --radius:16px; 
+  --shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+*{box-sizing:border-box} html,
+body{height:100%}
+
+body{
+  margin:0; 
+  font-family:"Outfit",sans-serif; 
+  color:var(--text);
+  min-height:100dvh; 
+  padding:32px 18px 40px;
+  display:flex; 
+  flex-direction:column; 
+  align-items:center;
+  background: linear-gradient(to bottom, rgba(255,255,255,.6), rgba(255,255,255,.65)), url("/static/bg.jpg");
+  background-size:cover; 
+  background-position:center; 
+  background-attachment:fixed;
+}
+
+h2{ 
+    margin:0 0 24px; 
+    font-size:clamp(24px,3.6vw,34px); 
+    font-weight:700; 
+    color:#111827;
+     text-align:center }
+
+/* Grid 3 kartu */
+.results{ 
+    width:100%; 
+    max-width:1180px }
+.grid{ 
+    display:grid; 
+    grid-template-columns:repeat(3,minmax(260px,1fr));
+     gap:22px }
+@media (max-width:1024px){ .grid{ grid-template-columns:repeat(2,minmax(260px,1fr)) } }
+@media (max-width:640px){ .grid{ grid-template-columns:1fr } }
+
+/* Kartu */
+.card{
+  background:var(--panel); 
+  border:1px solid var(--stroke);
+  border-radius:var(--radius);
+   box-shadow:var(--shadow);
+  backdrop-filter:blur(12px); 
+  -webkit-backdrop-filter:blur(12px);
+  overflow:hidden; 
+  display:flex; 
+  flex-direction:column;
+  transition:transform .15s, box-shadow .2s;
+}
+.card:hover{ transform:translateY(-4px); 
+    box-shadow:0 16px 30px rgba(0,0,0,.12) }
+
+/* Header kartu */
+.card-head{ padding:16px 16px 6px }
+.badge{ display:inline-block; 
+    font:700 12px/1 "Outfit"; 
+    color:#fff; 
+    background:#111827; 
+    padding:6px 10px; 
+    border-radius:999px }
+.name{ 
+    margin:8px 0 2px; 
+    font-size:18px; 
+    font-weight:700; 
+    color:#111827 }
+.brand{ font-size:13px; 
+    color:var(--muted) }
+
+/* Spesifikasi */
+.specs{ 
+    list-style:none; 
+    margin:8px 0 0; 
+    padding:0 16px 12px; 
+    display:grid; 
+    gap:8px }
+.specs li{
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  gap:10px;
+  padding:10px 12px; 
+  background:#fff; 
+  border:1px solid #f1f5f9; 
+  border-radius:12px;
+}
+.specs li span{ 
+    color:var(--muted); 
+    font-size:13px }
+.specs li strong{ 
+    color:#0f172a; font:700 14px/1 "Outfit" }
+
+/* Footer kartu */
+.card-foot{ 
+    margin-top:auto; 
+    padding:12px 16px 16px; 
+    display:flex; 
+    justify-content:flex-end }
+.sim{ 
+    border-radius:10px; 
+    padding:8px 12px; 
+    background:#e9fdf6; 
+    color:#065f46; 
+    border:1px solid #a7f3d0; 
+    font-size:13px }
+.sim b{ 
+    margin-left:6px; 
+    font-size:14px }
+
+/* Box kesimpulan */
+.summary{
+  margin-top:26px; 
+  width:100%; 
+  max-width:1180px;
+  background:var(--panel); 
+  border:1px solid var(--stroke); 
+  border-radius:14px;
+  box-shadow:var(--shadow); 
+  padding:16px 18px;
+}
+.summary h4{ 
+    margin:0 0 6px; 
+    font-size:16px; 
+    color:#111827 }
+.summary p{ 
+    margin:0; 
+    color:#1f2937 }
+.btn-back{
+  display:inline-block; 
+  margin-top:10px; 
+  padding:10px 14px; 
+  border-radius:10px;
+  background:var(--primary); 
+  color:#fff; 
+  text-decoration:none; 
+  font-weight:600;
+  transition:transform .15s, box-shadow .15s; 
+  box-shadow:0 8px 16px rgba(37,99,235,.25)
+}
+.btn-back:hover{ 
+    transform:translateY(-2px); 
+    box-shadow:0 10px 20px rgba(37,99,235,.30) }
+
+/* Matikan styling lama (jaga-jaga) */
+h3 + p, h3 + p ~ p, hr{ display:none !important }
+
+/* === One-screen squeeze (desktop) === */
+@media (min-width: 1200px) {
+  body{ padding:8px 12px 10px; }
+
+  h2{
+    margin:6px 0 8px;
+    font-size:26px;
+  }
+
+  .results{ max-width:1200px; }
+  .grid{
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    align-items:stretch;
+  }
+
+  .card{ border-radius:12px; }
+  .card-head{ padding:10px 12px 2px; }
+  .badge{ padding:4px 8px; 
+    font-size:10.5px; }
+  .name{ font-size:15px; }
+  .brand{ font-size:12px; }
+
+  .specs{ padding:0 12px 8px; gap:6px; }
+  .specs li{
+    padding:7px 10px;
+    border-radius:10px;
+  }
+  .specs li span{ font-size:12px; }
+  .specs li strong{ font-size:13px; }
+
+  .card-foot{ padding:8px 12px 12px; }
+  .sim{ padding:5px 8px; font-size:12px; }
+  .sim b{ font-size:12.5px; }
+
+  .summary{
+  margin-top:10px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:var(--panel);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+  width:100%;
+  max-width:1180px;
+
+  /* tetap pas layar */
+  max-height:20vh;         
+  overflow-y:visible;      
+}
+
+.summary h4{ 
+  margin:0 0 6px; 
+  font-size:15px; 
+  color:#111827;
+}
+
+.summary p{ 
+  margin:0; 
+  font-size:14px; 
+  line-height:1.4; 
+  color:#1f2937; 
+}
+
+.btn-back{
+  display:inline-block;
+  margin-top:12px;
+  padding:9px 14px;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+  box-shadow:0 8px 16px rgba(37,99,235,.25);
+  transition:transform .15s, box-shadow .15s;
+}
+
+.btn-back:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(37,99,235,.30);
+}
+}
