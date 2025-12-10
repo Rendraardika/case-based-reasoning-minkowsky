@@ -2,11 +2,10 @@
 <html>
 <head>
     <title>CBR Rekomendasi HP</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}?v=1">
 </head>
 <body>
 
-<h2>Rekomendasi HP</h2>
+<h2>Case Based Reasoning - Rekomendasi HP</h2>
 
 <form action="/hasil" method="post">
 
@@ -24,11 +23,6 @@
 
     <label>Kapasitas Baterai:</label><br>
     <input type="text" name="baterai" placeholder="contoh: 4500 mAh"><br><br>
-
-    <label>Resolusi Kamera:</label><br>
-    <input type="text" name="kamera" placeholder="contoh: 50MP / 50+8+2 MP"><br><br>
-
-
 
     <button type="submit">Hitung Similarity</button>
 </form>

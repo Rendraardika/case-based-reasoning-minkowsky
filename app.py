@@ -7,113 +7,56 @@ app = Flask(__name__)
 
 DATASET_PATH = "dataset.handphone.csv"
 
-# =====================================================
-#  VALIDASI WAJIB DIISI
-# =====================================================
-def require_input(value, field_name):
-    if value.strip() == "":
-        raise ValueError(f"Input '{field_name}' wajib diisi.")
-    return value
-
-
-# =====================================================
-# NORMALISASI ANGKA UMUM
-# =====================================================
+# -------------------------------------------------
+# Normalisasi input user
+# -------------------------------------------------
 def normalize_number(text):
-    text = text.lower().strip()
+    text = text.lower().replace(",", ".").strip()
 
-    # harga jutaan
-    if "juta" in text or "jt" in text:
-        text = text.replace(",", ".")
-        num = re.sub(r"[^0-9.]", "", text)
-        return float(num) * 1_000_000
+    if "juta" in text or "jt" in text or "m" in text:
+        num = float(re.sub(r"[^0-9.]", "", text))
+        return num * 1_000_000
 
-    # harga memakai "m"
-    if re.search(r"\d+\s*m\b", text):
-        text = text.replace(",", ".")
-        num = re.sub(r"[^0-9.]", "", text)
-        return float(num) * 1_000_000
+    num = re.sub(r"[^0-9.]", "", text)
+    return float(num)
 
-    # angka umum
-    text = text.replace(",", ".")
-    match = re.search(r"\d+(\.\d+)?", text)
-    if match:
-        return float(match.group())
-
-    return 0.0
-
-
-# =====================================================
-# NORMALISASI RESOLUSI KAMERA (ambil nilai terbesar)
-# =====================================================
-def normalize_camera(text):
-    text = text.lower().strip()
-    text = text.replace(",", " ").replace("+", " ")
-
-    numbers = re.findall(r"\d+", text)
-    if not numbers:
+# -------------------------------------------------
+# Cleaning angka dataset
+# -------------------------------------------------
+def clean_number(x):
+    try:
+        return float(re.sub(r"[^0-9.]", "", str(x)))
+    except:
         return 0.0
 
-    return float(max([int(n) for n in numbers]))
-
-
-# =====================================================
-# CLEAN DATASET ANGKA
-# =====================================================
-def clean_number(x):
-    text = str(x).lower().strip()
-    text = text.replace(",", ".")
-    match = re.search(r"\d+(\.\d+)?", text)
-    if match:
-        return float(match.group())
-    return 0.0
-
-
-def clean_camera(x):
-    return normalize_camera(str(x))
-
-
-# =====================================================
-# MINKOWSKI DISTANCE
-# =====================================================
+# -------------------------------------------------
+# Minkowski Distance
+# -------------------------------------------------
 def minkowski(a, b, p=2):
     a = np.array(a, dtype=float)
     b = np.array(b, dtype=float)
-    return np.power(np.sum(np.abs(a - b) ** p), 1 / p)
+    return np.power(np.sum(np.abs(a - b)**p), 1/p)
 
-
-# =====================================================
-# SIMILARITY 0–1
-# =====================================================
-def similarity_score(distance):
-    max_distance = 6 * 1_000_000  # karena ada 6 fitur
+# -------------------------------------------------
+# Similarity 0–1
+# -------------------------------------------------
+def similarity_score(distance, max_distance=100000):
     score = 1 - (distance / max_distance)
     return max(0.0, min(1.0, score))
 
-
-# =====================================================
-#  CBR TOP 3
-# =====================================================
+# -------------------------------------------------
+# CBR TOP 3 RECOMMENDATION
+# -------------------------------------------------
 def cbr_predict_top3(input_case, p=2):
     df = pd.read_csv(DATASET_PATH)
 
-    numeric_cols = ["Harga", "Ram", "Memori_internal", "Ukuran_layar",
-                    "Kapasitas_baterai", "Resolusi_kamera"]
-
-    # BERSIHKAN DATASET
-    for col in numeric_cols:
-        if col == "Resolusi_kamera":
-            df[col] = df[col].apply(clean_camera)
-        else:
-            df[col] = df[col].apply(clean_number)
+    numeric_cols = ["Harga", "Ram", "Memori_internal", "Ukuran_layar", "Kapasitas_baterai"]
 
     input_values = [input_case[col] for col in numeric_cols]
 
     hasil = []
     for _, row in df.iterrows():
-        row_values = [row[col] for col in numeric_cols]
-
-        dist = minkowski(input_values, row_values, p)
+        dist = minkowski(np.array(input_values), row[numeric_cols].values, p)
         sim = similarity_score(dist)
 
         hasil.append({
@@ -125,63 +68,108 @@ def cbr_predict_top3(input_case, p=2):
     hasil_sorted = sorted(hasil, key=lambda x: x["distance"])
     return hasil_sorted[:3]
 
+# -------------------------------------------------
+# Perhitungan akurasi 70:30
+# -------------------------------------------------
+def compute_accuracy(test_ratio=0.3, p=2):
+    df = pd.read_csv(DATASET_PATH)
 
-# =====================================================
+    numeric_cols = ["Harga", "Ram", "Memori_internal", "Ukuran_layar", "Kapasitas_baterai"]
+
+    for col in numeric_cols:
+        df[col] = df[col].apply(clean_number)
+
+    df_shuffled = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    n_total = len(df_shuffled)
+    n_train = int((1 - test_ratio) * n_total)
+    n_test = n_total - n_train
+
+    train_df = df_shuffled.iloc[:n_train]
+    test_df = df_shuffled.iloc[n_train:]
+
+    correct = 0
+    samples = []
+
+    for i, (_, test_row) in enumerate(test_df.iterrows()):
+        test_case = test_row[numeric_cols].values
+
+        min_dist = float("inf")
+        best_match = None
+
+        for _, train_row in train_df.iterrows():
+            dist = minkowski(test_case, train_row[numeric_cols].values, p)
+            if dist < min_dist:
+                min_dist = dist
+                best_match = train_row
+
+        sim = similarity_score(min_dist)
+
+        if best_match["Brand"] == test_row["Brand"]:
+            correct += 1
+
+        if i < 10:
+            samples.append({
+                "brand_asli": test_row["Brand"],
+                "brand_pred": best_match["Brand"],
+                "distance": float(min_dist),
+                "similarity": float(sim)
+            })
+
+    accuracy = (correct / n_test) * 100
+
+    return {
+        "accuracy": accuracy,
+        "train_n": n_train,
+        "test_n": n_test,
+        "correct": correct,
+        "wrong": n_test - correct,
+        "samples": samples
+    }
+
+# -------------------------------------------------
 # ROUTES
-# =====================================================
+# -------------------------------------------------
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 @app.route("/hasil", methods=["POST"])
 def hasil():
-
     try:
-        # VALIDASI WAJIB DIISI
-        harga = require_input(request.form["harga"], "Harga")
-        ram = require_input(request.form["ram"], "RAM")
-        mem = require_input(request.form["memori"], "Memori Internal")
-        layar = require_input(request.form["layar"], "Ukuran Layar")
-        bat = require_input(request.form["baterai"], "Kapasitas Baterai")
-        kamera = require_input(request.form["kamera"], "Resolusi Kamera")
-
-        # NORMALISASI INPUT
         input_case = {
-            "Harga": normalize_number(harga),
-            "Ram": normalize_number(ram),
-            "Memori_internal": normalize_number(mem),
-            "Ukuran_layar": normalize_number(layar),
-            "Kapasitas_baterai": normalize_number(bat),
-            "Resolusi_kamera": normalize_camera(kamera),
+            "Harga": normalize_number(request.form["harga"]),
+            "Ram": normalize_number(request.form["ram"]),
+            "Memori_internal": normalize_number(request.form["memori"]),
+            "Ukuran_layar": normalize_number(request.form["layar"]),
+            "Kapasitas_baterai": normalize_number(request.form["baterai"]),
         }
 
         rekomendasi = cbr_predict_top3(input_case)
+
         sim_top = rekomendasi[0]["similarity"]
 
-        # ===========================
-        # KESIMPULAN LEBIH INDAH
-        # ===========================
-        nama_hp = [
-    rekomendasi[0]["data"]["Nama_hp"],
-    rekomendasi[1]["data"]["Nama_hp"],
-    rekomendasi[2]["data"]["Nama_hp"]
-]
-
-        kesimpulan = (
-            f"Berikut adalah 3 rekomendasi HP yang paling sesuai dengan kebutuhan Anda: "
-            f"{nama_hp[0]}, {nama_hp[1]}, dan {nama_hp[2]}. "
-            f"Urutan ini dihasilkan berdasarkan tingkat kemiripan spesifikasi terhadap data yang Anda masukkan."
-        )
+        if sim_top >= 0.8:
+            kesimpulan = "Sangat Mirip (Rekomendasi paling relevan)"
+        elif sim_top >= 0.5:
+            kesimpulan = "Mirip (Perbedaan spesifikasi tidak terlalu jauh)"
+        elif sim_top >= 0.2:
+            kesimpulan = "Cukup Mirip (Masih bisa dipertimbangkan)"
+        else:
+            kesimpulan = "Tidak Mirip (Perbedaan spesifikasi terlalu besar)"
 
         return render_template("hasil.html", rekomendasi=rekomendasi, kesimpulan=kesimpulan)
 
     except Exception as e:
         return f"Terjadi error: {e}"
 
+@app.route("/akurasi")
+def akurasi():
+    metrics = compute_accuracy()
+    return render_template("akurasi.html", M=metrics)
 
-# =====================================================
+# -------------------------------------------------
 # RUN
-# =====================================================
+# -------------------------------------------------
 if __name__ == "__main__":
     app.run(debug=True)

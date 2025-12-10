@@ -1,45 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hasil Rekomendasi</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='hasil.css') }}?v=2">
+    <title>Hasil Rekomendasi</title>
 </head>
 <body>
-  <h2>3 Rekomendasi Handphone Paling Mirip</h2>
 
-  <section class="results">
-    <div class="grid">
-      {% for item in rekomendasi %}
-      <article class="card">
-        <header class="card-head">
-          <span class="badge">#{{ loop.index }}</span>
-          <h3 class="name">{{ item.data["Nama_hp"] }}</h3>
-          <div class="brand">{{ item.data["Brand"] }}</div>
-        </header>
+<h2>=== 3 Rekomendasi Handphone Paling Mirip ===</h2>
 
-        <ul class="specs">
-          <li><span>Harga</span><strong>Rp {{ "{:,.0f}".format(item.data["Harga"]) }}</strong></li>
-          <li><span>RAM</span><strong>{{ item.data["Ram"] }} GB</strong></li>
-          <li><span>Memori Internal</span><strong>{{ item.data["Memori_internal"] }} GB</strong></li>
-          <li><span>Ukuran Layar</span><strong>{{ item.data["Ukuran_layar"] }} inci</strong></li>
-          <li><span>Resolusi Kamera</span><strong>{{ item.data["Resolusi_kamera"] }}</strong></li>
-          <li><span>Kapasitas Baterai</span><strong>{{ item.data["Kapasitas_baterai"] }} mAh</strong></li>
-          <li><span>Rating Pengguna</span><strong>{{ item.data["Rating_pengguna"] }}</strong></li>
-          <li><span>Tahun Rilis</span><strong>{{ item.data["Tahun_rilis"] }}</strong></li>
-        </ul>
+{% for item in rekomendasi %}
+    <h3>Rekomendasi {{ loop.index }}</h3>
+    <p><b>Nama HP:</b> {{ item.data["Nama_hp"] }}</p>
+    <p><b>Brand:</b> {{ item.data["Brand"] }}</p>
+    <p><b>Harga:</b> Rp {{ "{:,.0f}".format(item.data["Harga"]) }}</p>
+    <p><b>RAM:</b> {{ item.data["Ram"] }} GB</p>
+    <p><b>Memori Internal:</b> {{ item.data["Memori_internal"] }} GB</p>
+    <p><b>Ukuran Layar:</b> {{ item.data["Ukuran_layar"] }} inci</p>
+    <p><b>Resolusi Kamera:</b> {{ item.data["Resolusi_kamera"] }}</p>
+    <p><b>Kapasitas Baterai:</b> {{ item.data["Kapasitas_baterai"] }} mAh</p>
+    <p><b>Rating Pengguna:</b> {{ item.data["Rating_pengguna"] }}</p>
+    <p><b>Tahun Rilis:</b> {{ item.data["Tahun_rilis"] }}</p>
 
-        <footer class="card-foot">
-          <div class="sim">Similarity <b>{{ "%.4f"|format(item.similarity) }}</b></div>
-        </footer>
-      </article>
-      {% endfor %}
-    </div>
+    <p><b>Similarity (0–1):</b> {{ "%.6f"|format(item.similarity) }}</p>
+    <hr>
+{% endfor %}
 
-    <div class="summary">
-      <h4>Kesimpulan</h4>
-      <p>{{ kesimpulan }}</p>
-      <a class="btn-back" href="{{ url_for('index') }}">← Kembali ke Form</a>
-    </div>
-  </section>
+<h3>Kesimpulan Akhir:</h3>
+<p>{{ kesimpulan }}</p>
+
+<p><a href="{{ url_for('index') }}">Kembali ke Form</a></p>
+
 </body>
 </html>
