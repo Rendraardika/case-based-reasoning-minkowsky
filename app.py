@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import pandas as pd
 import numpy as np
 import re
@@ -71,7 +72,7 @@ def cbr_predict_top3(input_case, p=2):
 # -------------------------------------------------
 # Perhitungan akurasi 70:30
 # -------------------------------------------------
-def compute_accuracy(test_ratio=0.3, p=2):
+def compute_metrics(test_ratio=0.3, p=2):
     df = pd.read_csv(DATASET_PATH)
 
     numeric_cols = ["Harga", "Ram", "Memori_internal", "Ukuran_layar", "Kapasitas_baterai"]
@@ -83,15 +84,14 @@ def compute_accuracy(test_ratio=0.3, p=2):
 
     n_total = len(df_shuffled)
     n_train = int((1 - test_ratio) * n_total)
-    n_test = n_total - n_train
 
     train_df = df_shuffled.iloc[:n_train]
     test_df = df_shuffled.iloc[n_train:]
 
-    correct = 0
-    samples = []
+    y_true = []
+    y_pred = []
 
-    for i, (_, test_row) in enumerate(test_df.iterrows()):
+    for _, test_row in test_df.iterrows():
         test_case = test_row[numeric_cols].values
 
         min_dist = float("inf")
@@ -103,28 +103,16 @@ def compute_accuracy(test_ratio=0.3, p=2):
                 min_dist = dist
                 best_match = train_row
 
-        sim = similarity_score(min_dist)
-
-        if best_match["Brand"] == test_row["Brand"]:
-            correct += 1
-
-        if i < 10:
-            samples.append({
-                "brand_asli": test_row["Brand"],
-                "brand_pred": best_match["Brand"],
-                "distance": float(min_dist),
-                "similarity": float(sim)
-            })
-
-    accuracy = (correct / n_test) * 100
+        y_true.append(test_row["Brand"])
+        y_pred.append(best_match["Brand"])
 
     return {
-        "accuracy": accuracy,
-        "train_n": n_train,
-        "test_n": n_test,
-        "correct": correct,
-        "wrong": n_test - correct,
-        "samples": samples
+        "accuracy": accuracy_score(y_true, y_pred),
+        "precision": precision_score(y_true, y_pred, average="macro", zero_division=0),
+        "recall": recall_score(y_true, y_pred, average="macro", zero_division=0),
+        "f1": f1_score(y_true, y_pred, average="macro", zero_division=0),
+        "train_n": len(train_df),
+        "test_n": len(test_df)
     }
 
 # -------------------------------------------------
@@ -158,14 +146,21 @@ def hasil():
         else:
             kesimpulan = "Tidak Mirip (Perbedaan spesifikasi terlalu besar)"
 
-        return render_template("hasil.html", rekomendasi=rekomendasi, kesimpulan=kesimpulan)
+        metrics = compute_metrics()
+
+        return render_template(
+            "hasil.html",
+            rekomendasi=rekomendasi,
+            kesimpulan=kesimpulan,
+            metrics=metrics
+        )
 
     except Exception as e:
         return f"Terjadi error: {e}"
 
 @app.route("/akurasi")
 def akurasi():
-    metrics = compute_accuracy()
+    metrics = compute_metrics()
     return render_template("akurasi.html", M=metrics)
 
 # -------------------------------------------------

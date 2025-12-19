@@ -24,6 +24,23 @@
     <hr>
 {% endfor %}
 
+<hr>
+
+<h3>Evaluasi Performa Sistem</h3>
+<ul>
+  <li><b>Akurasi:</b> {{ "%.2f"|format(metrics.accuracy * 100) }}%</li>
+  <li><b>Presisi (Macro):</b> {{ "%.4f"|format(metrics.precision) }}</li>
+  <li><b>Recall (Macro):</b> {{ "%.4f"|format(metrics.recall) }}</li>
+  <li><b>F1-Score (Macro):</b> {{ "%.4f"|format(metrics.f1) }}</li>
+</ul>
+
+<p>
+  Data latih: {{ metrics.train_n }} <br>
+  Data uji: {{ metrics.test_n }}
+</p>
+
+<hr>
+
 <h3>Kesimpulan Akhir:</h3>
 <p>{{ kesimpulan }}</p>
 
