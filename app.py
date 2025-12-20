@@ -125,6 +125,67 @@ def cbr_predict_top3(input_case, p=2):
     hasil_sorted = sorted(hasil, key=lambda x: x["distance"])
     return hasil_sorted[:3]
 
+# =====================================================
+# EVALUASI KINERJA CBR
+# =====================================================
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+
+def evaluate_cbr_performance(p=2, test_size=0.3, random_state=42):
+    df = pd.read_csv(DATASET_PATH)
+
+    numeric_cols = ["Harga", "Ram", "Memori_internal", "Ukuran_layar",
+                    "Kapasitas_baterai", "Resolusi_kamera"]
+
+    # Bersihkan data numerik
+    for col in numeric_cols:
+        if col == "Resolusi_kamera":
+            df[col] = df[col].apply(clean_camera)
+        else:
+            df[col] = df[col].apply(clean_number)
+
+    train_df, test_df = train_test_split(
+        df, test_size=test_size, random_state=random_state
+    )
+
+    y_true = []
+    y_pred = []
+
+    for _, test_row in test_df.iterrows():
+        input_case = {col: test_row[col] for col in numeric_cols}
+
+        hasil = []
+        for _, train_row in train_df.iterrows():
+            dist = minkowski(
+                [input_case[c] for c in numeric_cols],
+                [train_row[c] for c in numeric_cols],
+                p
+            )
+            hasil.append((train_row["Brand"], dist))
+
+        # Ambil brand dengan jarak terdekat
+        predicted_brand = min(hasil, key=lambda x: x[1])[0]
+
+        y_true.append(test_row["Brand"])
+        y_pred.append(predicted_brand)
+
+    acc = accuracy_score(y_true, y_pred)
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="macro"
+    )
+    precision_w, recall_w, f1_w, _ = precision_recall_fscore_support(
+        y_true, y_pred, average="weighted"
+    )
+
+    return {
+        "accuracy": acc,
+        "precision_macro": precision,
+        "recall_macro": recall,
+        "f1_macro": f1,
+        "precision_weighted": precision_w,
+        "recall_weighted": recall_w,
+        "f1_weighted": f1_w,
+    }
 
 # =====================================================
 # ROUTES
@@ -179,6 +240,11 @@ def hasil():
     except Exception as e:
         return f"Terjadi error: {e}"
 
+@app.route("/evaluasi")
+def evaluasi():
+    metrics = evaluate_cbr_performance()
+
+    return render_template("evaluasi.html", metrics=metrics)
 
 # =====================================================
 # RUN
