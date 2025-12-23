@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Evaluasi Kinerja CBR</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='hasil.css') }}">
+</head>
+<body>
+
+<h2>Evaluasi Kinerja Sistem CBR</h2>
+
+<section class="results">
+  <div class="grid">
+
+    <article class="card">
+      <header class="card-head">
+        <h3 class="name">Hasil Evaluasi (70% Latih : 30% Uji)</h3>
+      </header>
+
+      <ul class="specs">
+        <li><span>Akurasi</span><strong>{{ "%.2f"|format(metrics.accuracy * 100) }}%</strong></li>
+
+        <li><span>Precision (Macro)</span>
+          <strong>{{ "%.4f"|format(metrics.precision_macro) }}</strong></li>
+        <li><span>Recall (Macro)</span>
+          <strong>{{ "%.4f"|format(metrics.recall_macro) }}</strong></li>
+        <li><span>F1-Score (Macro)</span>
+          <strong>{{ "%.4f"|format(metrics.f1_macro) }}</strong></li>
+
+        <li><span>Precision (Weighted)</span>
+          <strong>{{ "%.4f"|format(metrics.precision_weighted) }}</strong></li>
+        <li><span>Recall (Weighted)</span>
+          <strong>{{ "%.4f"|format(metrics.recall_weighted) }}</strong></li>
+        <li><span>F1-Score (Weighted)</span>
+          <strong>{{ "%.4f"|format(metrics.f1_weighted) }}</strong></li>
+      </ul>
+
+      <footer class="card-foot">
+        <div class="sim">Metode: Minkowski Distance</div>
+      </footer>
+    </article>
+
+  </div>
+
+  <div class="summary">
+    <h4>Kesimpulan</h4>
+    <p>
+      Berdasarkan hasil evaluasi, sistem Case-Based Reasoning mampu
+      memberikan rekomendasi dengan tingkat akurasi yang baik.
+      Nilai precision, recall, dan F1-score menunjukkan bahwa
+      sistem cukup konsisten dalam menemukan kasus yang relevan.
+    </p>
+
+    <a class="btn-back" href="{{ url_for('index') }}">← Kembali ke Beranda</a>
+  </div>
+</section>
+
+</body>
+</html>

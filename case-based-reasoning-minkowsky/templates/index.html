@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>CBR Rekomendasi HP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}?v=2">
+</head>
+<body>
+
+<h2>Rekomendasi HP</h2>
+
+<form action="/hasil" method="post">
+
+    <!-- HARGA -->
+    <label>Harga (Juta Rupiah)</label>
+    <div class="select-wrapper">
+        <select name="harga" required>
+            <option value="">-- Pilih Harga --</option>
+            {% for i in range(1,16) %}
+            <option value="{{ i }}">{{ i }} Juta</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- RAM -->
+    <label>RAM (GB)</label>
+    <div class="select-wrapper">
+        <select name="ram" required>
+            <option value="">-- Pilih RAM --</option>
+            <option value="4">4 GB</option>
+            <option value="6">6 GB</option>
+            <option value="8">8 GB</option>
+            <option value="12">12 GB</option>
+            <option value="16">16 GB</option>
+        </select>
+    </div>
+
+    <!-- MEMORI -->
+    <label>Memori Internal (GB)</label>
+    <div class="select-wrapper">
+        <select name="memori" required>
+            <option value="">-- Pilih Memori --</option>
+            <option value="4">4 GB</option>
+            <option value="8">8 GB</option>
+            <option value="16">16 GB</option>
+            <option value="32">32 GB</option>
+            <option value="64">64 GB</option>
+            <option value="128">128 GB</option>
+            <option value="256">256 GB</option>
+            <option value="512">512 GB</option>
+        </select>
+    </div>
+
+    <!-- LAYAR -->
+    <label>Ukuran Layar (Inch)</label>
+    <div class="select-wrapper">
+        <select name="layar" required>
+            <option value="">-- Pilih Ukuran --</option>
+            <option value="6.1">6.1"</option>
+            <option value="6.4">6.4"</option>
+            <option value="6.5">6.5"</option>
+            <option value="6.7">6.7"</option>
+        </select>
+    </div>
+
+    <!-- BATERAI -->
+    <label>Kapasitas Baterai (mAh)</label>
+    <div class="select-wrapper">
+        <select name="baterai" required>
+            <option value="">-- Pilih Baterai --</option>
+            <option value="4000">4000 mAh</option>
+            <option value="4500">4500 mAh</option>
+            <option value="5000">5000 mAh</option>
+            <option value="6000">6000 mAh</option>
+            <option value="7000">7000 mAh</option>
+        </select>
+    </div>
+
+    <!-- KAMERA -->
+    <label>Resolusi Kamera Utama (MP)</label>
+    <div class="select-wrapper">
+        <select name="kamera" required>
+            <option value="">-- Pilih Kamera --</option>
+            <option value="12">12 MP</option>
+            <option value="48">48 MP</option>
+            <option value="50">50 MP</option>
+            <option value="64">64 MP</option>
+            <option value="108">108 MP</option>
+        </select>
+    </div>
+
+    <button type="submit">Hitung Similarity</button>
+</form>
+
+</body>
+</html>
